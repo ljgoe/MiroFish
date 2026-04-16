@@ -1,0 +1,28 @@
+services:
+  # The Backend Python Service
+  - type: web
+    name: mirofish-backend
+    env: python
+    rootDir: backend
+    buildCommand: "curl -LsSf https://astral.sh/uv/install.sh | sh && $HOME/.local/bin/uv sync"
+    startCommand: "$HOME/.local/bin/uv run gunicorn -b 0.0.0.0:$PORT wsgi:app -w 4 --timeout 120"
+    envVars:
+      - key: FLASK_ENV
+        value: production
+      - key: PYTHON_VERSION
+        value: 3.11.0
+      # Provide your LLM API details and ZEP_API_KEY in the Render Dashboard securely.
+    
+  # The Frontend Static Site
+  - type: web
+    name: mirofish-frontend
+    env: static
+    rootDir: frontend
+    buildCommand: "npm install && npm run build"
+    staticPublishPath: "./dist"
+    envVars:
+      # Inject the Render backend URL here if needed.
+      # Render dynamically assigns URLs to web services, meaning you'll need to 
+      # update this value in the site settings later or use a standard proxy rule.
+      - key: VITE_API_BASE_URL
+        value: "https://mirofish-backend.onrender.com"
